@@ -1,78 +1,148 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Laporan Kependudukan Bulanan — Desa Keling</title>
-<link rel="stylesheet" href="style.css">
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- SheetJS (xlsx) CDN -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Kependudukan Bulanan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f9;
+    }
+    header {
+      background: #003366;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    header h2 {
+      margin: 5px 0 0;
+      font-size: 18px;
+      font-weight: normal;
+    }
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #003366;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      background: #003366;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0055aa;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 15px;
+      font-size: 13px;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-<header class="topbar">
+
+  <header>
+    <h1>Pemerintah Desa Keling</h1>
+    <h2>Kecamatan Kepung, Kabupaten Kediri</h2>
+  </header>
+
   <div class="container">
-    <div class="brand">
-      <div class="logo">🏛️</div>
-      <div>
-        <div class="village">Pemerintah Desa Keling</div>
-        <div class="sub">Kecamatan Kepung, Kabupaten Kediri</div>
-      </div>
-    </div>
-    <h1 class="title">Laporan Kependudukan Bulanan</h1>
-  </div>
-</header>
+    <h3>Laporan Kependudukan Bulanan</h3>
+    <form id="laporanForm">
+      <label>Bulan Entri:</label>
+      <input type="month" name="bulan" required>
 
-<main class="container main-grid">
-  <section class="card form-card">
-    <h2>Entri Bulanan</h2>
-    <form id="laporanForm" autocomplete="off">
-      <div class="row"><label>Bulan Entri <input type="month" name="bulanEntri" required></label></div>
-      <div class="row two"><label>RW <input type="number" name="rw" min="1" required></label><label>RT <input type="number" name="rt" min="1" required></label></div>
-      <div class="row two"><label>Jumlah Penduduk <input type="number" name="jumlahPenduduk" min="0" required></label><label>Jumlah KK <input type="number" name="jumlahKK" min="0" required></label></div>
-      <div class="row two"><label>Jumlah Kematian <input type="number" name="jumlahKematian" min="0" value="0"></label><label>Jumlah Kelahiran <input type="number" name="jumlahKelahiran" min="0" value="0"></label></div>
-      <div class="row two"><label>Pindah Masuk <input type="number" name="pindahMasuk" min="0" value="0"></label><label>Pindah Keluar <input type="number" name="pindahKeluar" min="0" value="0"></label></div>
-      <div class="row"><label>Penduduk Musiman <input type="number" name="pendudukMusiman" min="0" value="0"></label></div>
-      <div class="actions">
-        <button id="submitBtn" type="submit">Kirim Laporan</button>
-        <button id="resetBtn" type="button" class="muted">Reset</button>
-      </div>
+      <label>RW:</label>
+      <input type="text" name="rw" required>
+
+      <label>RT:</label>
+      <input type="text" name="rt" required>
+
+      <label>Jumlah Penduduk:</label>
+      <input type="number" name="jumlah_penduduk" required>
+
+      <label>Jumlah KK:</label>
+      <input type="number" name="jumlah_kk" required>
+
+      <label>Jumlah Kematian:</label>
+      <input type="number" name="jumlah_kematian" required>
+
+      <label>Jumlah Kelahiran:</label>
+      <input type="number" name="jumlah_kelahiran" required>
+
+      <label>Pindah Masuk:</label>
+      <input type="number" name="pindah_masuk" required>
+
+      <label>Pindah Keluar:</label>
+      <input type="number" name="pindah_keluar" required>
+
+      <label>Penduduk Musiman/Sementara:</label>
+      <input type="number" name="penduduk_musiman" required>
+
+      <button type="submit">Kirim Laporan</button>
     </form>
-    <div id="formStatus" class="status"></div>
-    <div class="note">Pastikan URL Google Apps Script sudah dikonfigurasi (lihat README).</div>
-  </section>
+  </div>
 
-  <section class="card dashboard-card">
-    <div class="dash-header">
-      <h2>Ringkasan Desa (semua RW/RT)</h2>
-      <div class="dash-actions">
-        <button id="refreshBtn" class="muted">Refresh</button>
-        <button id="downloadBtn">Download Excel</button>
-      </div>
-    </div>
+  <div class="footer">
+    &copy; 2025 Pemerintah Desa Keling - Sistem Laporan Kependudukan Bulanan
+  </div>
 
-    <div class="stats-grid" id="statsGrid">
-      <!-- cards injected here -->
-    </div>
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzJ0Tv8grsqZIyln7Y_-afSiRl4QMZjwNY5tujA29h6PUplWcEI2pJeOt3RgtX1X87O/exec";
+    const form = document.getElementById("laporanForm");
 
-    <div class="chart-wrap card">
-      <canvas id="monthlyChart" height="140"></canvas>
-    </div>
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
 
-    <div class="table-wrap card">
-      <h3>Riwayat Entri</h3>
-      <div class="table-scroll"><table id="dataTable"><thead><tr>
-        <th>Tanggal</th><th>Bulan</th><th>RW</th><th>RT</th><th>Penduduk</th><th>KK</th><th>Kelahiran</th><th>Kematian</th><th>Masuk</th><th>Keluar</th><th>Musiman</th>
-      </tr></thead><tbody></tbody></table></div>
-    </div>
-  </section>
-</main>
+      fetch(scriptURL, { method: "POST", body: formData })
+        .then((response) => {
+          if (response.ok) {
+            alert("✅ Data berhasil dikirim ke Google Spreadsheet!");
+            form.reset();
+          } else {
+            alert("⚠️ Gagal mengirim data. Coba lagi.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error!", error.message);
+          alert("❌ Tidak bisa terhubung ke server. Periksa koneksi atau URL Script.");
+        });
+    });
+  </script>
 
-<footer class="footer">
-  © <span id="year"></span> Pemerintah Desa Keling — Preview Aplikasi
-</footer>
-
-<script src="script.js"></script>
 </body>
 </html>
