@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Laporan Kependudukan Bulanan — Pemerintah Desa Keling</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -12,13 +12,13 @@
 <body>
 <header class="header">
   <div class="container header-grid">
-    <div>
+    <div class="logo-block">
       <h1>Pemerintah Desa Keling</h1>
       <p class="muted">Kecamatan Kepung — Kabupaten Kediri</p>
     </div>
     <div class="title-block">
       <div class="app-name">Laporan Kependudukan Bulanan</div>
-      <div class="app-sub muted">Aplikasi pencatatan RT / RW — Simpan draft & Final</div>
+      <div class="app-sub muted">Simpan draft — Finalisasi — Unduh Excel</div>
     </div>
   </div>
 </header>
@@ -35,64 +35,52 @@
   <section id="dashboard" class="page">
     <div class="card">
       <h2>Panduan Singkat</h2>
-      <p>Gunakan menu <strong>Form Entri</strong> untuk mengisi laporan bulanan. RT/RW dapat menyimpan sebagai draft dan melanjutkan kemudian. Setelah lengkap, klik <strong>Kirim Final</strong> lalu unduh file Excel dan kirim ke Admin via WhatsApp.</p>
+      <p>Gunakan menu <strong>Form Entri</strong> untuk mengisi laporan bulanan. RT/RW dapat menyimpan sebagai draft dan melanjutkan. Setelah lengkap, klik <strong>Kirim Final</strong> untuk menyimpan; data akan otomatis muncul di Dashboard dan Ringkasan. Unduh Excel via menu Ringkasan.</p>
     </div>
 
     <div class="card">
-      <h3>Status Entri (Beban Moral)</h3>
-      <p>Daftar RW/RT yang telah <strong>Final</strong> dan yang <strong>Belum</strong> mengumpulkan laporan bulan ini.</p>
+      <h3>Status Entri Bulan Ini</h3>
+      <p>Menunjukkan RT/RW yang <strong>Sudah Final</strong> dan yang <strong>Belum</strong> pada bulan yang dipilih.</p>
+      <div class="status-controls">
+        <label>Pilih Bulan: <input id="statusMonth" type="month" /></label>
+        <button id="statusRefresh" class="btn small">Refresh</button>
+      </div>
       <table id="statusTable">
         <thead><tr><th>RW</th><th>RT</th><th>Status</th></tr></thead>
         <tbody></tbody>
       </table>
+    </div>
+
+    <div class="card">
+      <h3>Ringkasan Cepat</h3>
+      <div class="row grid-3 summary-cards">
+        <div class="col card-mini"><div class="label">Total KK</div><div id="sumKK">0</div></div>
+        <div class="col card-mini"><div class="label">Total Penduduk</div><div id="sumPenduduk">0</div></div>
+        <div class="col card-mini"><div class="label">RW Terdata</div><div id="countRW">0</div></div>
+      </div>
     </div>
   </section>
 
   <!-- Form Entri -->
   <section id="form" class="page" style="display:none">
     <div class="card">
-      <h2>Form Entri Bulanan (Full)</h2>
+      <h2>Form Entri Bulanan</h2>
       <form id="entryForm" onsubmit="return false;">
         <div class="row">
-          <div class="col">
-            <label>Bulan Entri</label>
-            <input id="bulan" type="month" required />
-          </div>
-          <div class="col">
-            <label>RW</label>
-            <input id="rw" type="text" placeholder="Contoh: 01" required />
-          </div>
-          <div class="col">
-            <label>RT</label>
-            <input id="rt" type="text" placeholder="Contoh: 02" required />
-          </div>
+          <div class="col"><label>Bulan Entri</label><input id="bulan" type="month" required /></div>
+          <div class="col"><label>RW</label><input id="rw" type="text" placeholder="01" required /></div>
+          <div class="col"><label>RT</label><input id="rt" type="text" placeholder="01" required /></div>
         </div>
 
         <h3>Jumlah Penduduk</h3>
         <div class="row grid-3">
-          <div class="col card-mini">
-            <label>Laki-laki</label><input id="pendudukL" type="number" min="0" value="0" />
-          </div>
-          <div class="col card-mini">
-            <label>Perempuan</label><input id="pendudukP" type="number" min="0" value="0" />
-          </div>
-          <div class="col card-mini total">
-            <label>Total</label><div id="pendudukTotal">0</div>
-          </div>
+          <div class="col card-mini"><label>Laki-laki</label><input id="pendudukL" type="number" min="0" value="0" /></div>
+          <div class="col card-mini"><label>Perempuan</label><input id="pendudukP" type="number" min="0" value="0" /></div>
+          <div class="col card-mini total"><label>Total</label><div id="pendudukTotal">0</div></div>
         </div>
 
         <h3>Jumlah KK</h3>
-        <div class="row grid-3">
-          <div class="col card-mini">
-            <label>Jumlah KK</label><input id="jumlahKK" type="number" min="0" value="0" />
-          </div>
-          <div class="col card-mini">
-            <label>--</label><div class="muted small">kosong</div>
-          </div>
-          <div class="col card-mini total">
-            <label>--</label><div class="muted small">--</div>
-          </div>
-        </div>
+        <div class="row grid-1"><div class="col card-mini"><label>Jumlah KK</label><input id="jumlahKK" type="number" min="0" value="0" /></div></div>
 
         <h3>Jumlah Kelahiran</h3>
         <div class="row grid-3">
@@ -142,7 +130,7 @@
       <h3>Riwayat Input (Final)</h3>
       <div style="overflow:auto; max-height:320px">
         <table id="finalTable">
-          <thead><tr><th>Bulan</th><th>RW</th><th>RT</th><th>KK</th><th>Penduduk L</th><th>Penduduk P</th><th>Total</th><th>Status</th></tr></thead>
+          <thead><tr><th>Bulan</th><th>RW</th><th>RT</th><th>KK</th><th>PL</th><th>PP</th><th>Total</th><th>Status</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -154,22 +142,15 @@
     <div class="card">
       <h2>Ringkasan & Grafik</h2>
       <div class="row">
-        <div class="col">
-          <label>Pilih Tahun</label>
-          <select id="filterYear"></select>
-        </div>
-        <div class="col">
-          <label>Pilih RW (opsional)</label>
-          <input id="filterRw" placeholder="Kosong = Semua" />
-        </div>
-        <div class="col actions-inline">
-          <button id="btnRefresh" class="btn small">Refresh</button>
-          <button id="btnDownloadExcel" class="btn primary small">Download Excel (Workbook)</button>
-        </div>
+        <div class="col"><label>Pilih Tahun</label><select id="filterYear"></select></div>
+        <div class="col"><label>Pilih RW (opsional)</label><input id="filterRw" placeholder="Kosong = Semua" /></div>
+        <div class="col actions-inline"><button id="btnRefresh" class="btn small">Refresh</button><button id="btnDownloadExcel" class="btn primary small">Download Excel (Workbook)</button></div>
       </div>
+
       <div class="chart-wrap">
         <canvas id="genderChart"></canvas>
       </div>
+
       <div class="card">
         <h3>Rekap Tabel</h3>
         <div style="overflow:auto; max-height:260px;">
@@ -196,8 +177,8 @@
 
 <footer class="footer">
   <div class="container">
-    <div>© 2025 Pemerintah Desa Keling</div>
-    <div class="muted">Dikembangkan untuk memudahkan pendataan RT/RW</div>
+    <div style="font-weight:700">Pemerintah Desa Keling</div>
+    <div class="muted">Hubungi admin jika ada masalah teknis</div>
   </div>
 </footer>
 

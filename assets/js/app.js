@@ -1,6 +1,6 @@
 
-// App v4 - precise fields, draft & final, export Excel, dashboard status, ringkasan chart
-const STORAGE_KEY = "laporan_v4_entries";
+// App v5 - final adjustments: auto-update dashboard and ringkasan; improved header/footer contrast
+const STORAGE_KEY = "laporan_v5_entries";
 
 // Navigation
 document.querySelectorAll('.nav-btn').forEach(btn=>{
@@ -12,65 +12,36 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
 });
 function showPage(id){ document.querySelectorAll('.page').forEach(p=>p.style.display='none'); document.getElementById(id).style.display='block'; if(id==='dashboard') renderStatus(); if(id==='ringkasan'){ populateYearFilter(); renderSummary(); } }
 
-// Helpers storage
+// Storage helpers
 function loadEntries(){ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
 function saveEntries(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
 
-// Update totals real-time
-const pairs = [
-  ['pendudukL','pendudukP','pendudukTotal'],
-  ['lahirL','lahirP','lahirTotal'],
-  ['matiL','matiP','matiTotal'],
-  ['masukL','masukP','masukTotal'],
-  ['keluarL','keluarP','keluarTotal'],
-  ['musimanL','musimanP','musimanTotal']
-];
-pairs.forEach(([a,b,c])=>{
-  const elA = document.getElementById(a);
-  const elB = document.getElementById(b);
-  [elA,elB].forEach(el=> el && el.addEventListener('input', ()=> updatePair(a,b,c)));
-});
-function updatePair(a,b,c){
-  const vA = parseInt(document.getElementById(a).value)||0;
-  const vB = parseInt(document.getElementById(b).value)||0;
-  document.getElementById(c).innerText = vA + vB;
-}
+// Update totals in form
+const pairs = [['pendudukL','pendudukP','pendudukTotal'],['lahirL','lahirP','lahirTotal'],['matiL','matiP','matiTotal'],['masukL','masukP','masukTotal'],['keluarL','keluarP','keluarTotal'],['musimanL','musimanP','musimanTotal']];
+pairs.forEach(([a,b,c])=>{ const A=document.getElementById(a); const B=document.getElementById(b); if(A && B){ [A,B].forEach(el=>el.addEventListener('input', ()=> updatePair(a,b,c))); }});
+function updatePair(a,b,c){ const vA = parseInt(document.getElementById(a).value)||0; const vB = parseInt(document.getElementById(b).value)||0; document.getElementById(c).innerText = vA+vB; }
 
-// Draft save & load
+// Save draft
 document.getElementById('btnSaveDraft').addEventListener('click', ()=>{
-  const entry = readForm();
+  const entry = readForm(); if(!entry.bulan||!entry.rw||!entry.rt){ alert('Isi Bulan, RW, dan RT minimal untuk menyimpan draft.'); return; }
   entry.status='draft'; entry.updatedAt = new Date().toISOString();
-  const key = entry.bulan + '|' + entry.rw + '|' + entry.rt;
-  let all = loadEntries();
-  const idx = all.findIndex(x=>x.key===key);
-  entry.key = key;
-  if(idx>=0) all[idx]=entry; else all.push(entry);
-  saveEntries(all);
-  showFormMsg('Draft tersimpan di perangkat.');
-  renderFinalTable();
-  renderStatus();
+  entry.key = entry.bulan + '|' + entry.rw + '|' + entry.rt;
+  let all = loadEntries(); const idx = all.findIndex(x=>x.key===entry.key);
+  if(idx>=0) all[idx]=entry; else all.push(entry); saveEntries(all);
+  showFormMsg('Draft disimpan.'); renderFinalTable(); renderStatus(); renderSummary();
 });
 
 // Submit final
 document.getElementById('btnSubmitFinal').addEventListener('click', ()=>{
-  const entry = readForm();
-  if(!entry.bulan || !entry.rw || !entry.rt){ alert('Isi Bulan, RW, dan RT terlebih dahulu.'); return; }
-  entry.status='final'; entry.submittedAt = new Date().toISOString();
-  entry.key = entry.bulan + '|' + entry.rw + '|' + entry.rt;
-  let all = loadEntries();
-  const idx = all.findIndex(x=>x.key===entry.key);
-  if(idx>=0) all[idx]=entry; else all.push(entry);
-  saveEntries(all);
-  showFormMsg('Laporan final tersimpan.');
-  renderFinalTable();
-  renderStatus();
+  const entry = readForm(); if(!entry.bulan||!entry.rw||!entry.rt){ alert('Lengkapi Bulan, RW, RT.'); return; }
+  entry.status='final'; entry.submittedAt = new Date().toISOString(); entry.key = entry.bulan + '|' + entry.rw + '|' + entry.rt;
+  let all = loadEntries(); const idx = all.findIndex(x=>x.key===entry.key);
+  if(idx>=0) all[idx]=entry; else all.push(entry); saveEntries(all);
+  showFormMsg('Laporan final tersimpan.'); renderFinalTable(); renderStatus(); renderSummary();
 });
 
 // Clear form
-document.getElementById('btnClear').addEventListener('click', ()=>{
-  document.getElementById('entryForm').reset();
-  pairs.forEach(([a,b,c])=> document.getElementById(c).innerText='0');
-});
+document.getElementById('btnClear').addEventListener('click', ()=>{ document.getElementById('entryForm').reset(); pairs.forEach(([a,b,c])=> document.getElementById(c).innerText='0'); });
 
 function readForm(){
   return {
@@ -93,50 +64,59 @@ function readForm(){
   };
 }
 
-// Render final table (only entries with status final)
+// Render final table (auto-updated)
 function renderFinalTable(){
-  const tbody = document.querySelector('#finalTable tbody');
-  tbody.innerHTML='';
+  const tbody = document.querySelector('#finalTable tbody'); tbody.innerHTML='';
   const entries = loadEntries().filter(e=>e.status==='final');
   entries.sort((a,b)=> (b.submittedAt||'') - (a.submittedAt||''));
   entries.forEach(e=>{
-    const tr = document.createElement('tr');
-    const total = (e.pendudukL||0)+(e.pendudukP||0);
+    const tr = document.createElement('tr'); const total = (e.pendudukL||0)+(e.pendudukP||0);
     tr.innerHTML = `<td>${e.bulan}</td><td>${e.rw}</td><td>${e.rt}</td><td>${e.jumlahKK}</td><td>${e.pendudukL}</td><td>${e.pendudukP}</td><td>${total}</td><td>Final</td>`;
     tbody.appendChild(tr);
   });
+  // update dashboard summary quick values
+  updateQuickSummary();
 }
 
-// Render dashboard status (which RW/RT completed this month)
+// Dashboard status render (auto-updated)
+document.getElementById('statusRefresh').addEventListener('click', renderStatus);
 function renderStatus(){
-  const tbody = document.querySelector('#statusTable tbody');
-  tbody.innerHTML='';
+  const tbody = document.querySelector('#statusTable tbody'); tbody.innerHTML='';
+  const month = document.getElementById('statusMonth').value || new Date().toISOString().slice(0,7);
   const entries = loadEntries();
-  const thisMonth = new Date().toISOString().slice(0,7);
-  // build map of RW->RT
+  // build map RW->RT status
   const map = {};
   entries.forEach(e=>{
-    if(!map[e.rw]) map[e.rw] = {};
-    if(!map[e.rw][e.rt]) map[e.rw][e.rt] = {status:'Belum'};
-    if(e.bulan===thisMonth && e.status==='final') map[e.rw][e.rt].status='Sudah';
+    if(!map[e.rw]) map[e.rw]={};
+    if(!map[e.rw][e.rt]) map[e.rw][e.rt] = 'Belum';
+    if(e.bulan===month && e.status==='final') map[e.rw][e.rt] = 'Sudah';
   });
-  // generate rows: show all RW/RT present in data or example up to 10 RW/RT
-  for(let rw in map){
-    for(let rt in map[rw]){
-      const tr=document.createElement('tr');
-      tr.innerHTML = `<td>${rw}</td><td>${rt}</td><td>${map[rw][rt].status==='Sudah' ? '✅ Sudah' : '❌ Belum'}</td>`;
+  // render rows sorted
+  Object.keys(map).sort().forEach(rw=>{
+    Object.keys(map[rw]).sort().forEach(rt=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${rw}</td><td>${rt}</td><td>${map[rw][rt]==='Sudah' ? '✅ Sudah' : '❌ Belum'}</td>`;
       tbody.appendChild(tr);
-    }
-  }
+    });
+  });
 }
 
-// Ringkasan: year filter and chart
+// Quick summary values on dashboard
+function updateQuickSummary(){
+  const entries = loadEntries().filter(e=>e.status==='final');
+  const sumKK = entries.reduce((s,e)=>s+(e.jumlahKK||0),0);
+  const sumPenduduk = entries.reduce((s,e)=>s+(e.pendudukL||0)+(e.pendudukP||0),0);
+  const rws = Array.from(new Set(entries.map(e=>e.rw)));
+  document.getElementById('sumKK').innerText = sumKK;
+  document.getElementById('sumPenduduk').innerText = sumPenduduk;
+  document.getElementById('countRW').innerText = rws.length;
+}
+
+// Ringkasan: populate years and render chart + table
 function populateYearFilter(){
-  const sel = document.getElementById('filterYear');
-  sel.innerHTML='';
-  const now = new Date();
-  const thisYear = now.getFullYear();
-  for(let y=thisYear; y>=thisYear-4; y--){ const opt=document.createElement('option'); opt.value=String(y); opt.textContent=String(y); sel.appendChild(opt); }
+  const sel = document.getElementById('filterYear'); sel.innerHTML='';
+  const now = new Date(); const thisYear = now.getFullYear();
+  for(let y=thisYear; y>=thisYear-5; y--){ const opt = document.createElement('option'); opt.value=String(y); opt.textContent=String(y); sel.appendChild(opt); }
   sel.value = String(thisYear);
 }
 document.getElementById('btnRefresh').addEventListener('click', renderSummary);
@@ -144,37 +124,36 @@ document.getElementById('btnRefresh').addEventListener('click', renderSummary);
 let chartInstance = null;
 function renderSummary(){
   const year = document.getElementById('filterYear').value;
-  const rwFilter = document.getElementById('filterRw').value.trim();
-  const entries = loadEntries().filter(e=> e.bulan && e.bulan.startsWith(year));
+  const rwFilter = (document.getElementById('filterRw').value || '').trim();
+  const entries = loadEntries().filter(e=> e.bulan && e.bulan.startsWith(year) && e.status==='final');
   const filtered = rwFilter ? entries.filter(e=>e.rw===rwFilter.padStart(2,'0')) : entries;
-  // aggregate per month totals L and P
+  // months labels and aggregated L/P per month
   const months = Array.from({length:12}, (_,i)=> (i+1).toString().padStart(2,'0') );
-  const labels = months.map(m=> `${year}-${m}`);
-  const dataL=labels.map(l=> filtered.filter(e=>e.bulan===l).reduce((s,e)=>s+ (e.pendudukL||0),0));
-  const dataP=labels.map(l=> filtered.filter(e=>e.bulan===l).reduce((s,e)=>s+ (e.pendudukP||0),0));
-  // update chart
+  const labels = months.map(m=> `${m}`);
+  const dataL = months.map(m=> filtered.filter(e=>e.bulan===`${year}-${m}`).reduce((s,e)=>s+(e.pendudukL||0),0));
+  const dataP = months.map(m=> filtered.filter(e=>e.bulan===`${year}-${m}`).reduce((s,e)=>s+(e.pendudukP||0),0));
+  // chart update
   const ctx = document.getElementById('genderChart').getContext('2d');
   if(chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, { type:'bar', data:{ labels: months, datasets:[ { label:'Laki-laki', data: dataL, backgroundColor:'#0b63d6' }, { label:'Perempuan', data: dataP, backgroundColor:'#00a676' } ] }, options:{ responsive:true, scales:{ x:{ stacked:false }, y:{ beginAtZero:true } } } });
-  // update rekap table
+  chartInstance = new Chart(ctx, { type:'bar', data:{ labels, datasets:[ { label:'Laki-laki', data: dataL, backgroundColor:'#0b63d6' }, { label:'Perempuan', data: dataP, backgroundColor:'#00a676' } ] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true } } } });
+  // update rekap table rows
   const tbody = document.querySelector('#rekapTable tbody'); tbody.innerHTML='';
   filtered.forEach(e=>{
-    const tr=document.createElement('tr');
-    const total=(e.pendudukL||0)+(e.pendudukP||0);
+    const tr = document.createElement('tr'); const total=(e.pendudukL||0)+(e.pendudukP||0);
     tr.innerHTML = `<td>${e.bulan}</td><td>${e.rw}</td><td>${e.rt}</td><td>${e.jumlahKK}</td><td>${e.pendudukL}</td><td>${e.pendudukP}</td><td>${total}</td>`;
     tbody.appendChild(tr);
   });
 }
 
-// Excel export workbook per year (each sheet per RW maybe)
+// Excel export workbook: Summary sheet + Details sheet
 document.getElementById('btnDownloadExcel').addEventListener('click', ()=>{
   const year = document.getElementById('filterYear').value;
-  const rwFilter = document.getElementById('filterRw').value.trim();
-  const entries = loadEntries().filter(e=> e.bulan && e.bulan.startsWith(year));
+  const rwFilter = (document.getElementById('filterRw').value || '').trim();
+  const entries = loadEntries().filter(e=> e.bulan && e.bulan.startsWith(year) && e.status==='final');
   const filtered = rwFilter ? entries.filter(e=>e.rw===rwFilter.padStart(2,'0')) : entries;
   if(filtered.length===0){ alert('Tidak ada data untuk tahun/filternya.'); return; }
-  // prepare workbook: one sheet "Laporan_<year>"
-  const wsData = filtered.map(e=> ({
+  // Details sheet rows
+  const details = filtered.map(e=> ({
     Bulan: e.bulan, RW: e.rw, RT: e.rt, KK: e.jumlahKK,
     Penduduk_L: e.pendudukL, Penduduk_P: e.pendudukP, Penduduk_Total: (e.pendudukL||0)+(e.pendudukP||0),
     Lahir_L: e.lahirL, Lahir_P: e.lahirP, Lahir_Total: (e.lahirL||0)+(e.lahirP||0),
@@ -184,17 +163,28 @@ document.getElementById('btnDownloadExcel').addEventListener('click', ()=>{
     Musiman_L: e.musimanL, Musiman_P: e.musimanP, Musiman_Total: (e.musimanL||0)+(e.musimanP||0),
     Status: e.status || ''
   }));
+  // Summary sheet: aggregated per RW and per month totals
+  const summaryMap = {};
+  filtered.forEach(e=>{
+    const key = e.rw;
+    if(!summaryMap[key]) summaryMap[key] = {RW:key, KK:0, Penduduk_L:0, Penduduk_P:0, Total:0};
+    summaryMap[key].KK += e.jumlahKK||0;
+    summaryMap[key].Penduduk_L += e.pendudukL||0;
+    summaryMap[key].Penduduk_P += e.pendudukP||0;
+    summaryMap[key].Total += (e.pendudukL||0)+(e.pendudukP||0);
+  });
+  const summary = Object.values(summaryMap);
+  // build workbook
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.json_to_sheet(wsData);
-  XLSX.utils.book_append_sheet(wb, ws, 'Laporan_'+year);
-  XLSX.writeFile(wb, 'Laporan_Kependudukan_'+year+'.xlsx');
+  const wsSummary = XLSX.utils.json_to_sheet(summary);
+  const wsDetails = XLSX.utils.json_to_sheet(details);
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary_RW');
+  XLSX.utils.book_append_sheet(wb, wsDetails, 'Details');
+  XLSX.writeFile(wb, `Laporan_Kependudukan_${year}.xlsx`);
 });
 
 // init on load
-window.addEventListener('load', ()=>{
-  renderFinalTable();
-  renderStatus();
-  populateYearFilter();
-  renderSummary();
-  // restore draft if exists for same month/rw/rt? leave manual load via draft saved in entries
+window.addEventListener('load', ()=>{ renderFinalTable(); renderStatus(); populateYearFilter(); renderSummary(); // set statusMonth default to current month
+  document.getElementById('statusMonth').value = new Date().toISOString().slice(0,7);
 });
+function showFormMsg(msg){ const el = document.getElementById('formMsg'); el.innerText = msg; setTimeout(()=>el.innerText='',3000); }

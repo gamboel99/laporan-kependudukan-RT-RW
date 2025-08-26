@@ -1,17 +1,15 @@
-README - Laporan Kependudukan v4
-Fitur utama:
-- Full-page per menu (Dashboard, Form, Ringkasan, Tentang)
-- Form sesuai persyaratan: Bulan Entri, RW, RT, dan semua metrik dengan L/P/Total
-- Draft & Final; final muncul di tabel bawah form
-- Dashboard menampilkan status RT/RW yang sudah setor bulan berjalan
-- Ringkasan: grafik L/P per bulan, rekap tabel, eksport workbook Excel (semua kolom)
-- Data disimpan di localStorage (perangkat).
+Laporan Kependudukan v5 - README
+Perbaikan v5:
+- Header & footer: warna kontras (navy + blue), font lebih tegas/readable.
+- Saat entri final disimpan, data otomatis muncul di Dashboard dan Ringkasan.
+- Excel export menghasilkan workbook berisi dua sheet: Summary_RW dan Details.
+- Semua kolom (Laki, Perempuan, Total) termasuk di export.
 
 Cara pakai singkat:
-1. Buka index.html di browser terbaru (Chrome/Edge/Firefox).
-2. Menu Form: isi, Simpan Draft jika perlu, Final jika selesai.
-3. Menu Ringkasan: pilih tahun, download Excel workbook.
-4. Kirim file Excel via WhatsApp ke Admin.
+1. Buka index.html di browser (Chrome/Edge/Firefox).
+2. Form: isi bulan, RW, RT, metrik. Simpan Draft bila perlu atau Kirim Final.
+3. Dashboard akan menampilkan status masuk bulan ini. Ringkasan menampilkan grafik & tabel.
+4. Unduh Excel lewat tombol Download Excel pada menu Ringkasan.
 
 Kontak Admin:
 - Bapak Wawi: +62 856-4900-4228
