@@ -1,0 +1,40 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f7f9fc;
+}
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+form {
+  display: grid;
+  gap: 10px;
+  max-width: 400px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+button {
+  padding: 10px;
+  background: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: #005fa3;
+}
+#status {
+  text-align: center;
+  margin-top: 15px;
+  font-weight: bold;
+}

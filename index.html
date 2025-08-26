@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laporan Kependudukan Bulanan</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Pemerintah Desa Keling</h1>
+    <h2>Kecamatan Kepung, Kabupaten Kediri</h2>
+    <h3>Laporan Kependudukan Bulanan</h3>
+  </header>
+
+  <main>
+    <form id="laporanForm">
+      <label>Bulan Entri:
+        <input type="month" name="bulanEntri" required />
+      </label>
+      <label>RW:
+        <input type="number" name="rw" required />
+      </label>
+      <label>RT:
+        <input type="number" name="rt" required />
+      </label>
+
+      <label>Jumlah Penduduk:
+        <input type="number" name="jumlahPenduduk" min="0" required />
+      </label>
+      <label>Jumlah KK:
+        <input type="number" name="jumlahKK" min="0" required />
+      </label>
+      <label>Jumlah Kematian:
+        <input type="number" name="jumlahKematian" min="0" />
+      </label>
+      <label>Jumlah Kelahiran:
+        <input type="number" name="jumlahKelahiran" min="0" />
+      </label>
+      <label>Warga Pindah Masuk:
+        <input type="number" name="pindahMasuk" min="0" />
+      </label>
+      <label>Warga Pindah Keluar:
+        <input type="number" name="pindahKeluar" min="0" />
+      </label>
+      <label>Penduduk Musiman:
+        <input type="number" name="pendudukMusiman" min="0" />
+      </label>
+
+      <button type="submit">Kirim Laporan</button>
+    </form>
+    <div id="status"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
