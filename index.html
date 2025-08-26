@@ -1,115 +1,99 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Kependudukan Bulanan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Kependudukan Bulanan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js" defer></script>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <h1>Pemerintah Desa Keling</h1>
-      <p>Kecamatan Kepung, Kabupaten Kediri</p>
-    </div>
+    <header>
+        Pemerintah Desa Keling - Kecamatan Kepung, Kabupaten Kediri
+    </header>
     <nav>
-      <ul>
-        <li><a href="#dashboard">Dashboard</a></li>
-        <li><a href="#form">Form Entri</a></li>
-        <li><a href="#ringkasan">Ringkasan & Riwayat</a></li>
-        <li><a href="#tentang">Tentang</a></li>
-      </ul>
+        <a href="#" onclick="showPage('dashboard')">Dashboard</a>
+        <a href="#" onclick="showPage('form')">Form Entri</a>
+        <a href="#" onclick="showPage('ringkasan')">Ringkasan</a>
+        <a href="#" onclick="showPage('tentang')">Tentang</a>
     </nav>
-  </header>
 
-  <main>
-    <section id="dashboard">
-      <h2>Dashboard</h2>
-      <p>Selamat datang di Aplikasi <strong>Laporan Kependudukan Bulanan</strong>.
-         Aplikasi ini digunakan oleh RW/RT untuk menginput data kependudukan bulanan, 
-         menyimpan draft sementara, dan menghasilkan laporan akhir dalam format Excel 
-         yang dapat dikirim ke Admin Desa.</p>
+    <!-- Dashboard -->
+    <div class="container page" id="dashboard">
+        <h2>📊 Dashboard</h2>
+        <div class="card">
+            <p>Aplikasi ini digunakan untuk mempermudah RT/RW dalam melakukan entri data kependudukan bulanan.</p>
+            <p><b>Panduan:</b> Silakan pilih menu Form untuk input, kemudian lihat Ringkasan untuk laporan.</p>
+        </div>
+        <div class="card">
+            <h3>Status Entri RT/RW</h3>
+            <p>📌 Menampilkan RT/RW mana yang sudah setor data dan mana yang belum.</p>
+            <table>
+                <tr><th>RW</th><th>RT</th><th>Status</th></tr>
+                <tr><td>01</td><td>01</td><td>✅ Sudah</td></tr>
+                <tr><td>01</td><td>02</td><td>❌ Belum</td></tr>
+            </table>
+        </div>
+    </div>
 
-      <h3>Ringkasan Per Dusun/RW</h3>
-      <div id="ringkasanDusun">
-        <p><em>Belum ada data yang diinput.</em></p>
-      </div>
-    </section>
+    <!-- Form Entri -->
+    <div class="container page" id="form" style="display:none;">
+        <h2>📝 Form Entri Data</h2>
+        <div class="card">
+            <form>
+                <label>Bulan Entri:</label><br>
+                <input type="month"><br><br>
 
-    <section id="form">
-      <h2>Form Entri Data</h2>
-      <form id="dataForm">
-        <label>Bulan Entri:
-          <input type="month" id="bulan" required>
-        </label>
-        <label>RW:
-          <input type="number" id="rw" required>
-        </label>
-        <label>RT:
-          <input type="number" id="rt" required>
-        </label>
+                <label>RW:</label><br>
+                <input type="text" placeholder="RW"><br><br>
 
-        <h3>Jumlah Penduduk</h3>
-        <label>Laki-Laki: <input type="number" id="pendudukL" min="0"></label>
-        <label>Perempuan: <input type="number" id="pendudukP" min="0"></label>
-        <p>Total: <span id="pendudukTotal">0</span></p>
+                <label>RT:</label><br>
+                <input type="text" placeholder="RT"><br><br>
 
-        <h3>Jumlah KK</h3>
-        <label>Jumlah KK: <input type="number" id="kk" min="0"></label>
+                <h3>Jumlah Penduduk</h3>
+                <label>Laki-laki:</label><input type="number"><br>
+                <label>Perempuan:</label><input type="number"><br>
+                <label>Total:</label><input type="number" readonly><br><br>
 
-        <h3>Kelahiran</h3>
-        <label>Laki-Laki: <input type="number" id="lahirL" min="0"></label>
-        <label>Perempuan: <input type="number" id="lahirP" min="0"></label>
-        <p>Total: <span id="lahirTotal">0</span></p>
+                <button type="submit">Simpan Draft</button>
+                <button type="submit">Finalisasi & Simpan</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>📑 Riwayat Input</h3>
+            <table>
+                <tr><th>Bulan</th><th>RW</th><th>RT</th><th>Status</th></tr>
+                <tr><td>Agustus</td><td>01</td><td>01</td><td>Final</td></tr>
+            </table>
+        </div>
+    </div>
 
-        <h3>Kematian</h3>
-        <label>Laki-Laki: <input type="number" id="matiL" min="0"></label>
-        <label>Perempuan: <input type="number" id="matiP" min="0"></label>
-        <p>Total: <span id="matiTotal">0</span></p>
+    <!-- Ringkasan -->
+    <div class="container page" id="ringkasan" style="display:none;">
+        <h2>📈 Ringkasan Data</h2>
+        <div class="card">
+            <p>Grafik dan tabel rekap per Dusun, RW, RT.</p>
+        </div>
+    </div>
 
-        <h3>Pindah Masuk</h3>
-        <label>Laki-Laki: <input type="number" id="masukL" min="0"></label>
-        <label>Perempuan: <input type="number" id="masukP" min="0"></label>
-        <p>Total: <span id="masukTotal">0</span></p>
+    <!-- Tentang -->
+    <div class="container page" id="tentang" style="display:none;">
+        <h2>ℹ️ Tentang Aplikasi</h2>
+        <div class="card">
+            <p>Aplikasi Laporan Kependudukan Bulanan Desa Keling.</p>
+            <p>Kontak Admin:</p>
+            <ul>
+                <li>Bapak Wawi: +62 856-4900-4228</li>
+                <li>Bapak Didin: +62 858-5988-7355</li>
+                <li>Bapak Arsa: +62 815-5588-8095</li>
+            </ul>
+        </div>
+    </div>
 
-        <h3>Pindah Keluar</h3>
-        <label>Laki-Laki: <input type="number" id="keluarL" min="0"></label>
-        <label>Perempuan: <input type="number" id="keluarP" min="0"></label>
-        <p>Total: <span id="keluarTotal">0</span></p>
-
-        <h3>Penduduk Musiman</h3>
-        <label>Laki-Laki: <input type="number" id="musimanL" min="0"></label>
-        <label>Perempuan: <input type="number" id="musimanP" min="0"></label>
-        <p>Total: <span id="musimanTotal">0</span></p>
-
-        <button type="button" onclick="saveDraft()">Simpan Draft</button>
-        <button type="button" onclick="submitFinal()">Kirim Final & Download</button>
-      </form>
-    </section>
-
-    <section id="ringkasan">
-      <h2>Ringkasan & Riwayat</h2>
-      <div id="riwayatTable"></div>
-      <button onclick="downloadExcel()">Download Excel Tahun Ini</button>
-      <canvas id="chart" width="600" height="300"></canvas>
-    </section>
-
-    <section id="tentang">
-      <h2>Tentang Aplikasi</h2>
-      <p>Aplikasi ini dibuat untuk mempermudah pengurus RT/RW dalam menginput data 
-         kependudukan bulanan secara digital. Data tersimpan sementara di perangkat 
-         (draft), dapat dilanjutkan kemudian, dan diunduh menjadi Excel ketika final.</p>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 Pemerintah Desa Keling, Kec. Kepung, Kab. Kediri</p>
-    <p>Dikembangkan untuk mempermudah pendataan kependudukan RT/RW</p>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="assets/app.js"></script>
+    <footer>
+        &copy; 2025 Pemerintah Desa Keling | Aplikasi Laporan Kependudukan Bulanan
+    </footer>
 </body>
 </html>
