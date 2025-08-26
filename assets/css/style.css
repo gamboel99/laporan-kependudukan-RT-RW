@@ -31,16 +31,14 @@ body {
   margin:0;
   font-size:20px;
   letter-spacing:0.2px;
-  color:#fff; /* judul putih */
+  color:#fff;
 }
-.muted {
-  color:var(--muted); /* teks abu terang */
-}
+.muted { color:var(--muted); }
 .title-block{text-align:right}
 .app-name {
   font-weight:700;
   font-size:16px;
-  color:#f1f5f9; /* lebih terang agar kontras */
+  color:#f1f5f9;
 }
 
 /* NAV */
@@ -50,13 +48,14 @@ body {
   background:#082a5a;
   padding:10px;
   box-shadow:0 4px 12px rgba(3,32,74,0.12);
+  flex-wrap: wrap;
 }
 .nav-btn {
   background:transparent;
   border:0;
-  color:#e2e8f0; /* lebih terang */
+  color:#e2e8f0;
   padding:10px 14px;
-  margin:0 6px;
+  margin:6px;
   border-radius:8px;
   cursor:pointer;
   font-weight:600;
@@ -73,7 +72,13 @@ body {
 
 /* CARD & GRID */
 .page{margin-top:20px}
-.card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(13,38,89,0.06);margin-bottom:16px}
+.card {
+  background:#fff;
+  border-radius:12px;
+  padding:18px;
+  box-shadow:0 8px 24px rgba(13,38,89,0.06);
+  margin-bottom:16px;
+}
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .col{flex:1;min-width:180px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
@@ -83,7 +88,7 @@ body {
 .total{display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:700;font-size:18px;color:var(--navy)}
 
 /* BUTTONS */
-.actions{display:flex;gap:12px;margin-top:12px}
+.actions{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
 .btn{padding:10px 14px;border-radius:8px;border:0;background:var(--green);color:#fff;cursor:pointer;font-weight:600}
 .btn.primary{background:linear-gradient(90deg,var(--blue),#3aa0ff)}
 .btn.ghost{background:#eef6f2;color:#0b1733;border:1px solid #dff0e9}
@@ -94,11 +99,12 @@ body {
 table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
 th,td{padding:8px;border-bottom:1px solid #eef2f8;text-align:center}
 .status-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.table-wrap{overflow-x:auto}
 
 /* FOOTER */
 .footer {
   background:linear-gradient(90deg,var(--navy),var(--blue));
-  color:#f1f5f9; /* lebih terang agar kontras */
+  color:#f1f5f9;
   padding:18px;
   margin-top:20px;
   text-align:center;
@@ -107,7 +113,27 @@ th,td{padding:8px;border-bottom:1px solid #eef2f8;text-align:center}
   color:#e2e8f0;
   text-decoration:none;
 }
-.footer a:hover {
-  color:#fff;
+.footer a:hover { color:#fff; }
+
+/* RESPONSIVE */
+@media (max-width:1024px){
+  .grid-3{grid-template-columns:repeat(2,1fr);}
+  .col{min-width:45%}
 }
-.small{font-size:13px}
+@media (max-width:768px){
+  .header-grid { flex-direction: column; text-align:center; gap:12px; padding:0 12px; }
+  .title-block{text-align:center;}
+  .row{flex-direction:column;}
+  .grid-3, .grid-1{grid-template-columns:1fr;}
+  .col{min-width:100%}
+  .card{padding:14px;}
+  table{font-size:12px;}
+  .chart-wrap{padding:8px;}
+  .actions{flex-direction:column; gap:8px;}
+}
+@media (max-width:480px){
+  .header h1{font-size:18px;}
+  .app-name{font-size:14px;}
+  .nav-btn{padding:8px 10px;font-size:13px;}
+  .small{font-size:12px;}
+}
