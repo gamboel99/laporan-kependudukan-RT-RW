@@ -1,57 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Laporan Kependudukan Bulanan</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Laporan Kependudukan Bulanan — Desa Keling</title>
+<link rel="stylesheet" href="style.css">
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- SheetJS (xlsx) CDN -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Pemerintah Desa Keling</h1>
-    <h2>Kecamatan Kepung, Kabupaten Kediri</h2>
-    <h3>Laporan Kependudukan Bulanan</h3>
-  </header>
+<header class="topbar">
+  <div class="container">
+    <div class="brand">
+      <div class="logo">🏛️</div>
+      <div>
+        <div class="village">Pemerintah Desa Keling</div>
+        <div class="sub">Kecamatan Kepung, Kabupaten Kediri</div>
+      </div>
+    </div>
+    <h1 class="title">Laporan Kependudukan Bulanan</h1>
+  </div>
+</header>
 
-  <main>
-    <form id="laporanForm">
-      <label>Bulan Entri:
-        <input type="month" name="bulanEntri" required />
-      </label>
-      <label>RW:
-        <input type="number" name="rw" required />
-      </label>
-      <label>RT:
-        <input type="number" name="rt" required />
-      </label>
-
-      <label>Jumlah Penduduk:
-        <input type="number" name="jumlahPenduduk" min="0" required />
-      </label>
-      <label>Jumlah KK:
-        <input type="number" name="jumlahKK" min="0" required />
-      </label>
-      <label>Jumlah Kematian:
-        <input type="number" name="jumlahKematian" min="0" />
-      </label>
-      <label>Jumlah Kelahiran:
-        <input type="number" name="jumlahKelahiran" min="0" />
-      </label>
-      <label>Warga Pindah Masuk:
-        <input type="number" name="pindahMasuk" min="0" />
-      </label>
-      <label>Warga Pindah Keluar:
-        <input type="number" name="pindahKeluar" min="0" />
-      </label>
-      <label>Penduduk Musiman:
-        <input type="number" name="pendudukMusiman" min="0" />
-      </label>
-
-      <button type="submit">Kirim Laporan</button>
+<main class="container main-grid">
+  <section class="card form-card">
+    <h2>Entri Bulanan</h2>
+    <form id="laporanForm" autocomplete="off">
+      <div class="row"><label>Bulan Entri <input type="month" name="bulanEntri" required></label></div>
+      <div class="row two"><label>RW <input type="number" name="rw" min="1" required></label><label>RT <input type="number" name="rt" min="1" required></label></div>
+      <div class="row two"><label>Jumlah Penduduk <input type="number" name="jumlahPenduduk" min="0" required></label><label>Jumlah KK <input type="number" name="jumlahKK" min="0" required></label></div>
+      <div class="row two"><label>Jumlah Kematian <input type="number" name="jumlahKematian" min="0" value="0"></label><label>Jumlah Kelahiran <input type="number" name="jumlahKelahiran" min="0" value="0"></label></div>
+      <div class="row two"><label>Pindah Masuk <input type="number" name="pindahMasuk" min="0" value="0"></label><label>Pindah Keluar <input type="number" name="pindahKeluar" min="0" value="0"></label></div>
+      <div class="row"><label>Penduduk Musiman <input type="number" name="pendudukMusiman" min="0" value="0"></label></div>
+      <div class="actions">
+        <button id="submitBtn" type="submit">Kirim Laporan</button>
+        <button id="resetBtn" type="button" class="muted">Reset</button>
+      </div>
     </form>
-    <div id="status"></div>
-  </main>
+    <div id="formStatus" class="status"></div>
+    <div class="note">Pastikan URL Google Apps Script sudah dikonfigurasi (lihat README).</div>
+  </section>
 
-  <script src="script.js"></script>
+  <section class="card dashboard-card">
+    <div class="dash-header">
+      <h2>Ringkasan Desa (semua RW/RT)</h2>
+      <div class="dash-actions">
+        <button id="refreshBtn" class="muted">Refresh</button>
+        <button id="downloadBtn">Download Excel</button>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <!-- cards injected here -->
+    </div>
+
+    <div class="chart-wrap card">
+      <canvas id="monthlyChart" height="140"></canvas>
+    </div>
+
+    <div class="table-wrap card">
+      <h3>Riwayat Entri</h3>
+      <div class="table-scroll"><table id="dataTable"><thead><tr>
+        <th>Tanggal</th><th>Bulan</th><th>RW</th><th>RT</th><th>Penduduk</th><th>KK</th><th>Kelahiran</th><th>Kematian</th><th>Masuk</th><th>Keluar</th><th>Musiman</th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  © <span id="year"></span> Pemerintah Desa Keling — Preview Aplikasi
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>
