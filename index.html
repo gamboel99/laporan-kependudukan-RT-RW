@@ -1,99 +1,206 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Kependudukan Bulanan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/script.js" defer></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Laporan Kependudukan Bulanan — Pemerintah Desa Keling</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-    <header>
-        Pemerintah Desa Keling - Kecamatan Kepung, Kabupaten Kediri
-    </header>
-    <nav>
-        <a href="#" onclick="showPage('dashboard')">Dashboard</a>
-        <a href="#" onclick="showPage('form')">Form Entri</a>
-        <a href="#" onclick="showPage('ringkasan')">Ringkasan</a>
-        <a href="#" onclick="showPage('tentang')">Tentang</a>
-    </nav>
+<header class="header">
+  <div class="container header-grid">
+    <div>
+      <h1>Pemerintah Desa Keling</h1>
+      <p class="muted">Kecamatan Kepung — Kabupaten Kediri</p>
+    </div>
+    <div class="title-block">
+      <div class="app-name">Laporan Kependudukan Bulanan</div>
+      <div class="app-sub muted">Aplikasi pencatatan RT / RW — Simpan draft & Final</div>
+    </div>
+  </div>
+</header>
 
-    <!-- Dashboard -->
-    <div class="container page" id="dashboard">
-        <h2>📊 Dashboard</h2>
-        <div class="card">
-            <p>Aplikasi ini digunakan untuk mempermudah RT/RW dalam melakukan entri data kependudukan bulanan.</p>
-            <p><b>Panduan:</b> Silakan pilih menu Form untuk input, kemudian lihat Ringkasan untuk laporan.</p>
-        </div>
-        <div class="card">
-            <h3>Status Entri RT/RW</h3>
-            <p>📌 Menampilkan RT/RW mana yang sudah setor data dan mana yang belum.</p>
-            <table>
-                <tr><th>RW</th><th>RT</th><th>Status</th></tr>
-                <tr><td>01</td><td>01</td><td>✅ Sudah</td></tr>
-                <tr><td>01</td><td>02</td><td>❌ Belum</td></tr>
-            </table>
-        </div>
+<nav class="nav">
+  <button class="nav-btn active" data-target="dashboard">Dashboard</button>
+  <button class="nav-btn" data-target="form">Form Entri</button>
+  <button class="nav-btn" data-target="ringkasan">Ringkasan</button>
+  <button class="nav-btn" data-target="tentang">Tentang</button>
+</nav>
+
+<main class="container">
+  <!-- Dashboard -->
+  <section id="dashboard" class="page">
+    <div class="card">
+      <h2>Panduan Singkat</h2>
+      <p>Gunakan menu <strong>Form Entri</strong> untuk mengisi laporan bulanan. RT/RW dapat menyimpan sebagai draft dan melanjutkan kemudian. Setelah lengkap, klik <strong>Kirim Final</strong> lalu unduh file Excel dan kirim ke Admin via WhatsApp.</p>
     </div>
 
-    <!-- Form Entri -->
-    <div class="container page" id="form" style="display:none;">
-        <h2>📝 Form Entri Data</h2>
-        <div class="card">
-            <form>
-                <label>Bulan Entri:</label><br>
-                <input type="month"><br><br>
+    <div class="card">
+      <h3>Status Entri (Beban Moral)</h3>
+      <p>Daftar RW/RT yang telah <strong>Final</strong> dan yang <strong>Belum</strong> mengumpulkan laporan bulan ini.</p>
+      <table id="statusTable">
+        <thead><tr><th>RW</th><th>RT</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-                <label>RW:</label><br>
-                <input type="text" placeholder="RW"><br><br>
-
-                <label>RT:</label><br>
-                <input type="text" placeholder="RT"><br><br>
-
-                <h3>Jumlah Penduduk</h3>
-                <label>Laki-laki:</label><input type="number"><br>
-                <label>Perempuan:</label><input type="number"><br>
-                <label>Total:</label><input type="number" readonly><br><br>
-
-                <button type="submit">Simpan Draft</button>
-                <button type="submit">Finalisasi & Simpan</button>
-            </form>
+  <!-- Form Entri -->
+  <section id="form" class="page" style="display:none">
+    <div class="card">
+      <h2>Form Entri Bulanan (Full)</h2>
+      <form id="entryForm" onsubmit="return false;">
+        <div class="row">
+          <div class="col">
+            <label>Bulan Entri</label>
+            <input id="bulan" type="month" required />
+          </div>
+          <div class="col">
+            <label>RW</label>
+            <input id="rw" type="text" placeholder="Contoh: 01" required />
+          </div>
+          <div class="col">
+            <label>RT</label>
+            <input id="rt" type="text" placeholder="Contoh: 02" required />
+          </div>
         </div>
-        <div class="card">
-            <h3>📑 Riwayat Input</h3>
-            <table>
-                <tr><th>Bulan</th><th>RW</th><th>RT</th><th>Status</th></tr>
-                <tr><td>Agustus</td><td>01</td><td>01</td><td>Final</td></tr>
-            </table>
+
+        <h3>Jumlah Penduduk</h3>
+        <div class="row grid-3">
+          <div class="col card-mini">
+            <label>Laki-laki</label><input id="pendudukL" type="number" min="0" value="0" />
+          </div>
+          <div class="col card-mini">
+            <label>Perempuan</label><input id="pendudukP" type="number" min="0" value="0" />
+          </div>
+          <div class="col card-mini total">
+            <label>Total</label><div id="pendudukTotal">0</div>
+          </div>
         </div>
+
+        <h3>Jumlah KK</h3>
+        <div class="row grid-3">
+          <div class="col card-mini">
+            <label>Jumlah KK</label><input id="jumlahKK" type="number" min="0" value="0" />
+          </div>
+          <div class="col card-mini">
+            <label>--</label><div class="muted small">kosong</div>
+          </div>
+          <div class="col card-mini total">
+            <label>--</label><div class="muted small">--</div>
+          </div>
+        </div>
+
+        <h3>Jumlah Kelahiran</h3>
+        <div class="row grid-3">
+          <div class="col card-mini"><label>Laki-laki</label><input id="lahirL" type="number" min="0" value="0" /></div>
+          <div class="col card-mini"><label>Perempuan</label><input id="lahirP" type="number" min="0" value="0" /></div>
+          <div class="col card-mini total"><label>Total</label><div id="lahirTotal">0</div></div>
+        </div>
+
+        <h3>Jumlah Kematian</h3>
+        <div class="row grid-3">
+          <div class="col card-mini"><label>Laki-laki</label><input id="matiL" type="number" min="0" value="0" /></div>
+          <div class="col card-mini"><label>Perempuan</label><input id="matiP" type="number" min="0" value="0" /></div>
+          <div class="col card-mini total"><label>Total</label><div id="matiTotal">0</div></div>
+        </div>
+
+        <h3>Pindah Masuk</h3>
+        <div class="row grid-3">
+          <div class="col card-mini"><label>Laki-laki</label><input id="masukL" type="number" min="0" value="0" /></div>
+          <div class="col card-mini"><label>Perempuan</label><input id="masukP" type="number" min="0" value="0" /></div>
+          <div class="col card-mini total"><label>Total</label><div id="masukTotal">0</div></div>
+        </div>
+
+        <h3>Pindah Keluar</h3>
+        <div class="row grid-3">
+          <div class="col card-mini"><label>Laki-laki</label><input id="keluarL" type="number" min="0" value="0" /></div>
+          <div class="col card-mini"><label>Perempuan</label><input id="keluarP" type="number" min="0" value="0" /></div>
+          <div class="col card-mini total"><label>Total</label><div id="keluarTotal">0</div></div>
+        </div>
+
+        <h3>Penduduk Musiman / Mukim Sementara</h3>
+        <div class="row grid-3">
+          <div class="col card-mini"><label>Laki-laki</label><input id="musimanL" type="number" min="0" value="0" /></div>
+          <div class="col card-mini"><label>Perempuan</label><input id="musimanP" type="number" min="0" value="0" /></div>
+          <div class="col card-mini total"><label>Total</label><div id="musimanTotal">0</div></div>
+        </div>
+
+        <div class="actions">
+          <button id="btnSaveDraft" class="btn ghost" type="button">💾 Simpan Draft</button>
+          <button id="btnSubmitFinal" class="btn primary" type="button">✅ Kirim Final</button>
+          <button id="btnClear" class="btn" type="button">Reset Form</button>
+        </div>
+        <p id="formMsg" class="muted small"></p>
+      </form>
     </div>
 
-    <!-- Ringkasan -->
-    <div class="container page" id="ringkasan" style="display:none;">
-        <h2>📈 Ringkasan Data</h2>
-        <div class="card">
-            <p>Grafik dan tabel rekap per Dusun, RW, RT.</p>
-        </div>
+    <div class="card">
+      <h3>Riwayat Input (Final)</h3>
+      <div style="overflow:auto; max-height:320px">
+        <table id="finalTable">
+          <thead><tr><th>Bulan</th><th>RW</th><th>RT</th><th>KK</th><th>Penduduk L</th><th>Penduduk P</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
+  </section>
 
-    <!-- Tentang -->
-    <div class="container page" id="tentang" style="display:none;">
-        <h2>ℹ️ Tentang Aplikasi</h2>
-        <div class="card">
-            <p>Aplikasi Laporan Kependudukan Bulanan Desa Keling.</p>
-            <p>Kontak Admin:</p>
-            <ul>
-                <li>Bapak Wawi: +62 856-4900-4228</li>
-                <li>Bapak Didin: +62 858-5988-7355</li>
-                <li>Bapak Arsa: +62 815-5588-8095</li>
-            </ul>
+  <!-- Ringkasan -->
+  <section id="ringkasan" class="page" style="display:none">
+    <div class="card">
+      <h2>Ringkasan & Grafik</h2>
+      <div class="row">
+        <div class="col">
+          <label>Pilih Tahun</label>
+          <select id="filterYear"></select>
         </div>
+        <div class="col">
+          <label>Pilih RW (opsional)</label>
+          <input id="filterRw" placeholder="Kosong = Semua" />
+        </div>
+        <div class="col actions-inline">
+          <button id="btnRefresh" class="btn small">Refresh</button>
+          <button id="btnDownloadExcel" class="btn primary small">Download Excel (Workbook)</button>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="genderChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Rekap Tabel</h3>
+        <div style="overflow:auto; max-height:260px;">
+          <table id="rekapTable"><thead><tr><th>Bulan</th><th>RW</th><th>RT</th><th>KK</th><th>PL</th><th>PP</th><th>Total</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <footer>
-        &copy; 2025 Pemerintah Desa Keling | Aplikasi Laporan Kependudukan Bulanan
-    </footer>
+  <!-- Tentang -->
+  <section id="tentang" class="page" style="display:none">
+    <div class="card">
+      <h2>Tentang Aplikasi</h2>
+      <p>Aplikasi sederhana untuk memudahkan pelaporan kependudukan bulanan oleh RT/RW Desa Keling.</p>
+      <h4>Kontak Admin</h4>
+      <ul class="muted">
+        <li>Bapak Wawi: +62 856-4900-4228</li>
+        <li>Bapak Didin: +62 858-5988-7355</li>
+        <li>Bapak Arsa: +62 815-5588-8095</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div>© 2025 Pemerintah Desa Keling</div>
+    <div class="muted">Dikembangkan untuk memudahkan pendataan RT/RW</div>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
 </body>
 </html>

@@ -1,15 +1,19 @@
-Aplikasi Laporan Kependudukan Bulanan (Versi 2)
-=================================================
+README - Laporan Kependudukan v4
+Fitur utama:
+- Full-page per menu (Dashboard, Form, Ringkasan, Tentang)
+- Form sesuai persyaratan: Bulan Entri, RW, RT, dan semua metrik dengan L/P/Total
+- Draft & Final; final muncul di tabel bawah form
+- Dashboard menampilkan status RT/RW yang sudah setor bulan berjalan
+- Ringkasan: grafik L/P per bulan, rekap tabel, eksport workbook Excel (semua kolom)
+- Data disimpan di localStorage (perangkat).
 
-Fitur Baru:
-- Header & Footer modern (biru elegan, font Poppins)
-- Ringkasan per Dusun/RW (jumlah RT, KK)
-- Form input detail (Laki-laki, Perempuan, Total otomatis)
-- Download Excel dengan L/P/Total
-- Grafik bar Chart.js menampilkan Laki-Laki vs Perempuan
+Cara pakai singkat:
+1. Buka index.html di browser terbaru (Chrome/Edge/Firefox).
+2. Menu Form: isi, Simpan Draft jika perlu, Final jika selesai.
+3. Menu Ringkasan: pilih tahun, download Excel workbook.
+4. Kirim file Excel via WhatsApp ke Admin.
 
-Cara Pakai:
-1. Buka index.html di browser (atau deploy ke GitHub Pages / Vercel).
-2. Isi form (bisa Simpan Draft bila belum selesai).
-3. Jika sudah lengkap, klik "Kirim Final & Download".
-4. File Excel otomatis terunduh dan bisa dibagikan via WA.
+Kontak Admin:
+- Bapak Wawi: +62 856-4900-4228
+- Bapak Didin: +62 858-5988-7355
+- Bapak Arsa: +62 815-5588-8095
