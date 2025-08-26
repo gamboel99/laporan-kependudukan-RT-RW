@@ -1,8 +1,11 @@
-// ====== Konfigurasi: Ganti URL ini dengan Web App URL Google Apps Script Anda ======
-const APPS_SCRIPT_URL = localStorage.getItem('lapor_script_url') || 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
-// Untuk konfigurasi cepat: buka console dan jalankan:
-// localStorage.setItem('lapor_script_url', 'https://script.google.com/.../exec')
+<script>
+// ====== Konfigurasi URL Google Apps Script ======
+// Simpan URL di localStorage agar tidak hardcode
+// Jalankan di console browser jika perlu update URL:
+// localStorage.setItem('lapor_script_url', 'https://script.google.com/macros/s/AKfycbxxx/exec')
+const APPS_SCRIPT_URL = localStorage.getItem('lapor_script_url') || 'https://script.google.com/macros/s/AKfycbxxx/exec';
 
+// ====== Elemen DOM ======
 const form = document.getElementById('laporanForm');
 const statusEl = document.getElementById('formStatus');
 const refreshBtn = document.getElementById('refreshBtn');
@@ -15,7 +18,15 @@ const yearEl = document.getElementById('year');
 yearEl.textContent = new Date().getFullYear();
 
 let allData = []; // cache
+let chartInstance = null;
 
+// ====== Helper ======
+function showStatus(msg, ok=true){
+  statusEl.textContent = msg;
+  statusEl.style.color = ok ? '#066' : '#a00';
+}
+
+// ====== API ======
 async function postData(payload){
   try {
     const res = await fetch(APPS_SCRIPT_URL, {
@@ -25,7 +36,7 @@ async function postData(payload){
     });
     return await res.json();
   } catch (err) {
-    throw err;
+    throw new Error("Jaringan bermasalah atau URL tidak valid.");
   }
 }
 
@@ -33,54 +44,65 @@ async function fetchAll(){
   try {
     const res = await fetch(APPS_SCRIPT_URL + '?action=getAll');
     const data = await res.json();
-    return data;
+    return Array.isArray(data) ? data : [];
   } catch (err) {
     console.error('fetchAll err', err);
     return [];
   }
 }
 
-function showStatus(msg, ok=true){
-  statusEl.textContent = msg;
-  statusEl.style.color = ok ? '#066' : '#a00';
-}
-
+// ====== Event Listener ======
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  // Validasi sederhana
+  const fd = new FormData(form);
+  if(!fd.get('bulanEntri') || !fd.get('rw') || !fd.get('rt')){
+    showStatus('Harap isi minimal Bulan, RW, dan RT.', false);
+    return;
+  }
+
   submitBtn.disabled = true;
   showStatus('Mengirim...');
-  const fd = new FormData(form);
+
   const obj = Object.fromEntries(fd.entries());
   obj.timestamp = new Date().toISOString();
+
   try {
     const res = await postData(obj);
     if(res && res.ok){
-      showStatus('Laporan berhasil dikirim.', true);
+      showStatus('✅ Laporan berhasil dikirim.', true);
       form.reset();
       await loadAndRender();
     } else {
-      showStatus('Server menolak data: ' + (res && res.message ? res.message : JSON.stringify(res)), false);
+      showStatus('❌ Server menolak data: ' + (res.message || 'Tidak diketahui'), false);
     }
   } catch (err) {
-    showStatus('Gagal mengirim: ' + err.message, false);
+    showStatus('❌ Gagal mengirim: ' + err.message, false);
   } finally {
     submitBtn.disabled = false;
   }
 });
 
-resetBtn.addEventListener('click', ()=>{ form.reset(); showStatus('Form disetel ulang.', true); });
+resetBtn.addEventListener('click', ()=>{
+  form.reset();
+  showStatus('Form disetel ulang.', true);
+});
 
 refreshBtn.addEventListener('click', ()=> loadAndRender());
 
 downloadBtn.addEventListener('click', ()=> {
-  if(!allData || allData.length===0){ alert('Tidak ada data untuk diunduh.'); return; }
-  // Konversi ke worksheet
+  if(!allData || allData.length===0){ 
+    alert('Tidak ada data untuk diunduh.'); 
+    return; 
+  }
   const ws = XLSX.utils.json_to_sheet(allData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
   XLSX.writeFile(wb, 'laporan-kependudukan.xlsx');
 });
 
+// ====== Render ======
 function groupByMonth(arr){
   const map = {};
   arr.forEach(r => {
@@ -98,7 +120,6 @@ function groupByMonth(arr){
 }
 
 function renderStats(data){
-  // aggregate totals
   const totals = data.reduce((acc, r) => {
     acc.penduduk += Number(r.jumlahPenduduk||0);
     acc.kk += Number(r.jumlahKK||0);
@@ -119,26 +140,29 @@ function renderStats(data){
   `;
 }
 
-let chartInstance = null;
 function renderChart(data){
   const map = groupByMonth(data);
   const months = Object.keys(map).sort();
   const penduduk = months.map(m => map[m].penduduk);
   const ctx = document.getElementById('monthlyChart').getContext('2d');
+
   if(chartInstance) chartInstance.destroy();
   chartInstance = new Chart(ctx, {
     type:'bar',
     data:{
       labels: months,
-      datasets:[{label:'Total Penduduk', data: penduduk}]
+      datasets:[{label:'Total Penduduk', data: penduduk, backgroundColor:'#007bff'}]
     },
-    options:{responsive:true, plugins:{legend:{display:false}}}
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true}}
+    }
   });
 }
 
 function renderTable(data){
   dataTableBody.innerHTML = '';
-  // show newest first
   const arr = data.slice().reverse();
   arr.forEach(r => {
     const tr = document.createElement('tr');
@@ -159,16 +183,18 @@ function renderTable(data){
   });
 }
 
+// ====== Main ======
 async function loadAndRender(){
   showStatus('Memuat data...');
   const data = await fetchAll();
-  allData = Array.isArray(data) ? data : [];
+  allData = data;
   renderStats(allData);
   renderChart(allData);
   renderTable(allData);
-  showStatus('Data diperbarui.', true);
+  showStatus('✅ Data diperbarui.', true);
 }
 
 // initial load
 loadAndRender();
 window.loadAndRender = loadAndRender; // debug hook
+</script>
